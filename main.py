@@ -1,18 +1,3 @@
-# from fastapi import FastAPI
-
-# app = FastAPI()
-
-
-# @app.get("/")
-# async def root():
-#     return {"message": "Hello World"}
-
-
-# cur_dir = os.path.dirname(__file__)
-
-# clf = pickle.load(open(os.path.join(cur_dir, 'finall_modell.sav'), 'rb'))
-
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
@@ -21,6 +6,10 @@ from pydantic import BaseModel
 
 import pickle as pi
 import pandas as pd
+import numpy as np 
+from sklearn.utils.validation import check_array
+from sklearn.preprocessing import LabelEncoder
+import json
 
 app = FastAPI()
 
@@ -36,27 +25,25 @@ app.add_middleware(
     allow_headers=headers
 )
 
-# model_dir = "final_model.sav"
-# model = load_model(model_dir)
-
 cur_dir = os.path.dirname(__file__)
 
 model = pi.load(open(os.path.join(cur_dir, 'final_model.sav'), 'rb'))
+le = LabelEncoder()
 
 
 class Loan(BaseModel):
-    Loan_ID: str
-    Gender: str
-    Married: bool
-    Dependents: int
-    Education: str
-    Self_Employed: bool
-    ApplicantIncome: float
+    Loan_ID: object
+    Gender: object
+    Married: object
+    Dependents: object
+    Education: object
+    Self_Employed: object
+    ApplicantIncome: int
     CoapplicantIncome: float
     LoanAmount: float
-    Loan_Amount_Term: str
-    Credit_History: str
-    Property_Area: str
+    Loan_Amount_Term: float
+    Credit_History: float
+    Property_Area: object
 
 
 @app.get("/")
@@ -66,7 +53,7 @@ async def root():
 
 @app.post("/loanprediction/")
 async def get_loan_prediction(item: Loan):
-    Loan_ID = item.Loan_ID
+    Loan_ID = int(item.Loan_ID)
     Gender = item.Gender
     Married = item.Married
     Dependents = item.Dependents
@@ -78,15 +65,21 @@ async def get_loan_prediction(item: Loan):
     Loan_Amount_Term = item.Loan_Amount_Term
     Credit_History = item.Credit_History
     Property_Area = item.Property_Area
-    df = pd.DataFrame([[Loan_ID, Gender, Married, Dependents, Education, Self_Employed, ApplicantIncome, CoapplicantIncome, LoanAmount,
-                        Loan_Amount_Term, Credit_History, Property_Area]], columns=["Loan_ID", "Gender", "Married", "Dependents", "Education", "Self_Employed", "ApplicantIncome", "CoapplicantIncome", "LoanAmount",
-                                                                                    "Loan_Amount_Term", "Credit_History", "Property_Area"], dtype=str, index=['input'])
-    # vec = final_transformer.transform(df)
-    my_prediction = model.predict(df)
+    
+    
+    info = [Gender, Married, Dependents, Education, Self_Employed, ApplicantIncome, CoapplicantIncome, LoanAmount,
+                        Loan_Amount_Term, Credit_History, Property_Area]
+                        
+    loan_data = le.fit_transform(info)
+    print(loan_data)
+    my_prediction = model.predict([loan_data])
     print(my_prediction)
+    print(my_prediction.tolist())
+    print(np.array(my_prediction))
+    data = my_prediction.tolist()
 
-    # return {
-    #     "model-prediction": my_prediction
-    # }
+    return {
+        "model-prediction": data,
+    }
 
-    return item
+    
