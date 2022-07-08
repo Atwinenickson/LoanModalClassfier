@@ -9,13 +9,14 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score
+
+import matplotlib.pyplot as plt
+
 
 
 from pltseaborn import plt_seaborn, plt_scatter, plt_bar
 from label_encoder import LabelEncoderTrain, LabelEncoderTest
-from classifiers import Decision
+from classifiers import Decision,Randomc, Logic
 
 
 #load training and testing data
@@ -156,7 +157,7 @@ loan_train.head()
 
 
 # Bar charts to get a high level view of categorical data
-plt_bar(loan_train)
+# plt_bar(loan_train)
 
 
 # Here, I pass all categorical columns into a list
@@ -210,7 +211,7 @@ LabelEncoderTrain(objectlist_train, loan_train)
 
 objectlist_test = loan_test.select_dtypes(include='object').columns
 
-LabelEncoderTest(objectlist_test, loan_train)
+LabelEncoderTest(objectlist_test, loan_test)
 
 
 

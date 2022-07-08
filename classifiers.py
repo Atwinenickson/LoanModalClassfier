@@ -2,6 +2,10 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
+
+import pickle as pi
 
 
 def Decision(train_x, train_y, test_x, test_y):
@@ -24,3 +28,6 @@ def Logic(train_x, train_y, test_x, test_y):
     predict_y_3 = lr_model.predict(test_x)
     print(classification_report(test_y, predict_y_3))
     print("Accuracy:", accuracy_score(predict_y_3, test_y))
+    #Save the model
+    filename = 'final_model.sav'
+    pi.dump(lr_model, open(filename, 'wb'))
